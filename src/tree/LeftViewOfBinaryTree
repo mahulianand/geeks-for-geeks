@@ -1,0 +1,160 @@
+package tree;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+/*
+ * 
+ * Given a Binary Tree, print Left view of it. Left view of a Binary Tree is set of nodes 
+ * visible when tree is visited from Left side.
+
+ Left view of following tree is 1 2 4 8
+
+ 1
+ /     \
+ 2        3
+ /     \    /    \
+ 4     5   6    7
+ \
+ 8
+
+
+
+ Input:
+ The task is to complete the method which takes one argument, root of Binary Tree. 
+ There are multiple test cases. For each test case, this method will be called individually.
+
+ Output:
+ The function should print nodes in left view of Binary Tree.
+
+ Constraints:
+ 1 <=T<= 100
+ 1 <= Number of nodes<= 100
+ 1 <= Data of a node<= 1000
+
+ Example:
+ Input:
+ 2
+ 2
+ 1 2 R 1 3 L
+ 4
+ 10 20 L 10 30 R 20 40 L 20 60 R
+
+ Output:
+ 1 3
+ 10 20 40
+
+ There are two test casess.  First case represents a tree with 3 nodes and 2 edges where root is 1, 
+ left child of 1 is 3 and right child of 1 is 2.   Second test case represents a tree with 4 edges and 5 nodes.
+
+ * */
+public class LeftViewOfBinaryTree {
+
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(System.in));
+
+		String line = bufferedReader.readLine();
+		int noOfInputs = Integer.parseInt(line.trim());
+
+		for (int i = 0; i < noOfInputs; i++) {
+			line = bufferedReader.readLine();
+			line = bufferedReader.readLine();
+			String[] numbers = line.split(" ");
+
+			Node root = null;
+			Map<Integer, Node> valToNode = new HashMap<>();
+			for (int j = 0; j < numbers.length; j += 3) {
+				Integer parent = Integer.parseInt(numbers[j]);
+				Integer child = Integer.parseInt(numbers[j + 1]);
+				String rel = numbers[j + 2];
+
+				Node parentNode = null;
+				if (valToNode.containsKey(parent)) {
+					parentNode = valToNode.get(parent);
+				} else {
+					parentNode = new Node(parent);
+					valToNode.put(parent, parentNode);
+				}
+
+				if (root == null) {
+					root = parentNode;
+				}
+
+				Node childNode = null;
+				if (valToNode.containsKey(child)) {
+					childNode = valToNode.get(child);
+				} else {
+					childNode = new Node(child);
+					valToNode.put(child, childNode);
+				}
+
+				if (rel.equalsIgnoreCase("L")) {
+					parentNode.left = childNode;
+
+				} else {
+					parentNode.right = childNode;
+				}
+			}
+			leftView(root);
+
+		}
+
+		bufferedReader.close();
+
+	}
+
+	static void leftView(Node root) {
+		Map<Integer, Boolean> depthCovered = new HashMap<>();
+		List<Node> leftView = new ArrayList<>();
+		int depth = 0;
+		leftView(root, depthCovered, leftView, depth);
+		
+		StringBuilder str = new StringBuilder();
+		
+		for (Iterator<Node> iterator = leftView.iterator(); iterator.hasNext();) {
+			Node node = iterator.next();
+			str.append(node.data).append(" ");
+		}
+		System.out.println(str.toString().trim());
+	}
+
+	private static void leftView(Node currNode, Map<Integer, Boolean> depthCovered,
+			List<Node> leftView, int depth) {
+		
+		if(!depthCovered.containsKey(depth)){
+			depthCovered.put(depth, true);
+			leftView.add(currNode);
+		}
+		
+		if(currNode.left != null){
+			leftView(currNode.left, depthCovered, leftView, depth + 1);
+		}
+		
+		if(currNode.right != null){
+			leftView(currNode.right, depthCovered, leftView, depth + 1);
+		}
+		
+	}
+
+}
+
+class Node {
+	int data;
+	Node left, right;
+
+	Node(int item) {
+		data = item;
+		left = right = null;
+	}
+}
